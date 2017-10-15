@@ -1,0 +1,2 @@
+MyKeywordIsIntent Search protocols i o for {Keyword}
+WhatsMyKeywordIntent what am I searching for

@@ -1,0 +1,19 @@
+{
+  "intents": [
+    {
+      "intent": "MyKeywordIsIntent",
+      "slots": [
+        {
+          "name": "Keyword",
+          "type": "PROTOCOL_KEYWORDS"
+        }
+      ]
+    },
+    {
+      "intent": "WhatsMyKeywordIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    }
+  ]
+}
