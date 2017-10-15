@@ -174,17 +174,18 @@ def get_protocol_step_from_session(intent, session):
 
     # TEMPORARY
     url = 'https://protocols.io/api/open/get_protocol_json'
+    protocol_id = '8256'
     values = {
         'access_token': PROTOCOLS_IO_ACCESS_TOKEN,
-        'protocol_id': '8256',
+        'protocol_id': protocol_id,
     }
     data = urllib.parse.urlencode(values).encode("utf-8")
     req = urllib.request.Request(url, data)
     response = urllib.request.urlopen(req)
     the_page = response.read()
     protocol = json.loads(the_page)['protocol']
-    # protocol['protocol_name']
-    # protocol['description']
+    protocol_name = protocol['protocol_name']
+    protocol_description = protocol['description']
     steps = protocol['steps']
     total_steps = len(steps)
     step_list = []
@@ -203,11 +204,20 @@ def get_protocol_step_from_session(intent, session):
         step_list = session['attributes']['step_list']
         next_step = session['attributes']['next_step']
         total_steps = session['attributes']['total_steps']
+
+        # TEMPORARY
+        speech_output = ""
+        if next_step == 0:
+            speech_output = "I've found protocol ID {}: {}.".format(protocol_id, protocol_name) + \
+                            ". This protocol has {} steps. {} ".format(total_steps, protocol_description)
+                            # ". This protocol has {} steps and is described as: {}.".format(total_steps, protocol_description)
+        # TEMPORARY
+
         if next_step >= total_steps:
             speech_output = "Protocol Finished! Good bye."
             should_end_session = True
         else:
-            speech_output = "Step number {}: {} ".format(next_step + 1, step_list[next_step])
+            speech_output = speech_output + "Step number {}: {} ".format(next_step + 1, step_list[next_step])
             session_attributes['next_step'] = next_step + 1
             should_end_session = False
 

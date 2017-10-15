@@ -4,3 +4,4 @@ WhatsMyProtocolListIntent list protocols
 ReadProtocolStepIntent read protocol
 ReadProtocolStepIntent read next step
 ReadProtocolStepIntent next step
+ReadProtocolStepIntent get protocol I D eight two five six
