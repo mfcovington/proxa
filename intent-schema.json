@@ -10,6 +10,9 @@
       ]
     },
     {
+      "intent": "ReadProtocolStepIntent"
+    },
+    {
       "intent": "WhatsMyKeywordIntent"
     },
     {

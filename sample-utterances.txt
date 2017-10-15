@@ -1,3 +1,6 @@
 MyKeywordIsIntent Search protocols i o for {Keyword}
 WhatsMyKeywordIntent what am I searching for
 WhatsMyProtocolListIntent list protocols
+ReadProtocolStepIntent read protocol
+ReadProtocolStepIntent read next step
+ReadProtocolStepIntent next step
