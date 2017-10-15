@@ -13,6 +13,9 @@
       "intent": "WhatsMyKeywordIntent"
     },
     {
+      "intent": "WhatsMyProtocolListIntent"
+    },
+    {
       "intent": "AMAZON.HelpIntent"
     }
   ]

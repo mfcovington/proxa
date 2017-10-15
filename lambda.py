@@ -113,7 +113,8 @@ def set_keyword_in_session(intent, session):
     # protocol_list = deque(json.loads(the_page)['protocols'])
     protocol_list = json.loads(the_page)['protocols']
     # session['attributes']['protocol_list'] = json.dumps(protocol_list)
-    session_attributes['protocol_list'] = json.dumps(protocol_list)
+    # session_attributes['protocol_list'] = json.dumps(protocol_list)
+    session_attributes['protocol_list'] = protocol_list
 
     speech_output = "I've found {} protocols related to {}".format(total_results, keyword) + \
                     ". Say list protocols to hear the {} protocols".format(keyword)
@@ -141,6 +142,28 @@ def get_keyword_from_session(intent, session):
     # Setting reprompt_text to None signifies that we do not want to reprompt
     # the user. If the user does not respond or says something that is not
     # understood, the session will end.
+    return build_response(session_attributes, build_speechlet_response(
+        intent['name'], speech_output, reprompt_text, should_end_session))
+
+
+def get_protocol_list_from_session(intent, session):
+    session_attributes = session.get('attributes', {})
+    reprompt_text = None
+
+    if "protocol_list" in session.get('attributes', {}):
+        protocol_list = session['attributes']['protocol_list']
+        keyword = session['attributes']['keyword']
+        speech_output = "Here are the first {} {} protocols. ".format(len(protocol_list), keyword)
+
+        for i, protocol in enumerate(protocol_list):
+            speech_output = speech_output + ". number {}: ".format(i + 1) + protocol['protocol_name']
+
+        should_end_session = False
+    else:
+        speech_output = "I'm not sure what your search term is. " \
+                        "You can say, search protocols i o for cell culture."
+        should_end_session = False
+
     return build_response(session_attributes, build_speechlet_response(
         intent['name'], speech_output, reprompt_text, should_end_session))
 
@@ -179,6 +202,8 @@ def on_intent(intent_request, session):
         return set_keyword_in_session(intent, session)
     elif intent_name == "WhatsMyKeywordIntent":
         return get_keyword_from_session(intent, session)
+    elif intent_name == "WhatsMyProtocolListIntent":
+        return get_protocol_list_from_session(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
