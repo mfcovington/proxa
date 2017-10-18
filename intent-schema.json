@@ -10,6 +10,15 @@
       ]
     },
     {
+      "intent": "MyProtocolIdIsIntent",
+      "slots": [
+        {
+          "name": "ProtocolId",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
       "intent": "ReadProtocolStepIntent"
     },
     {

@@ -109,6 +109,52 @@ def set_keyword_in_session(intent, session):
         card_title, speech_output, reprompt_text, should_end_session))
 
 
+def set_protocol_id_in_session(intent, session):
+    """ Sets the protocol ID and protocol steps in the session. """
+
+    card_title = intent['name']
+    session_attributes = session.get('attributes', {})
+    should_end_session = False
+
+    protocol_id = intent['slots']['ProtocolId']['value']
+    session_attributes['protocol_id'] = protocol_id
+
+    url = 'https://protocols.io/api/open/get_protocol_json'
+    values = {
+        'access_token': session_attributes['access_token'],
+        'protocol_id': protocol_id,
+    }
+    data = urllib.parse.urlencode(values).encode("utf-8")
+    req = urllib.request.Request(url, data)
+    response = urllib.request.urlopen(req)
+    the_page = response.read()
+    protocol = json.loads(the_page)['protocol']
+    protocol_name = protocol['protocol_name']
+    protocol_description = protocol['description']
+    steps = protocol['steps']
+    total_steps = len(steps)
+    step_list = []
+    for s in steps:
+        for c in s['components']:
+            if c['name'] == 'Description':
+                step_list.append(c['data'])
+
+    session_attributes['step_list'] = step_list
+    session_attributes['total_steps'] = total_steps
+    session_attributes['next_step'] = 0
+
+    speech_output = ('I have found protocol ID {}: {}. This has {} steps and '
+                     'is described as: {}. Say read protocol to hear the '
+                     'first step.'.format(
+                        protocol_id, protocol_name, total_steps,
+                        protocol_description))
+    reprompt_text = ('Which protocol ID do you want to get? For example, say '
+                     'get protocol I D 8256.')
+
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
+
+
 def get_keyword_from_session(intent, session):
     session_attributes = session.get('attributes', {})
     reprompt_text = None
@@ -158,52 +204,16 @@ def get_protocol_step_from_session(intent, session):
     session_attributes = session.get('attributes', {})
     reprompt_text = None
 
-    # TEMPORARY
-    url = 'https://protocols.io/api/open/get_protocol_json'
-    protocol_id = '8256'
-    values = {
-        'access_token': session_attributes['access_token'],
-        'protocol_id': protocol_id,
-    }
-    data = urllib.parse.urlencode(values).encode('utf-8')
-    req = urllib.request.Request(url, data)
-    response = urllib.request.urlopen(req)
-    the_page = response.read()
-    protocol = json.loads(the_page)['protocol']
-    protocol_name = protocol['protocol_name']
-    protocol_description = protocol['description']
-    steps = protocol['steps']
-    total_steps = len(steps)
-    step_list = []
-    for s in steps:
-        for c in s['components']:
-            if c['name'] == 'Description':
-                step_list.append(c['data'])
-    session['attributes']['step_list'] = step_list
-    session['attributes']['total_steps'] = total_steps
-    if 'next_step' not in session.get('attributes', {}):
-        session['attributes']['next_step'] = 0
-    # END TEMPORARY
-
     if 'step_list' in session.get('attributes', {}):
         step_list = session['attributes']['step_list']
         next_step = session['attributes']['next_step']
         total_steps = session['attributes']['total_steps']
 
-        # TEMPORARY
-        speech_output = ''
-        if next_step == 0:
-            speech_output = ('I have found protocol ID {}: {}. This protocol '
-                             'has {} steps. {} '.format(
-                                 protocol_id, protocol_name, total_steps,
-                                 protocol_description))
-        # TEMPORARY
-
         if next_step >= total_steps:
             speech_output = 'Protocol Finished! Good bye.'
             should_end_session = True
         else:
-            speech_output = speech_output + 'Step number {}: {} '.format(
+            speech_output = 'Step number {}: {} '.format(
                 next_step + 1, step_list[next_step])
             session_attributes['next_step'] = next_step + 1
             should_end_session = False
@@ -253,6 +263,8 @@ def on_intent(intent_request, session):
         return get_keyword_from_session(intent, session)
     elif intent_name == 'WhatsMyProtocolListIntent':
         return get_protocol_list_from_session(intent, session)
+    elif intent_name == 'MyProtocolIdIsIntent':
+        return set_protocol_id_in_session(intent, session)
     elif intent_name == 'ReadProtocolStepIntent':
         return get_protocol_step_from_session(intent, session)
     elif intent_name == 'AMAZON.HelpIntent':

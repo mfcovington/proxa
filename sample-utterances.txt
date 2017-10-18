@@ -1,5 +1,6 @@
 MyKeywordIsIntent Search protocols i o for {Keyword}
+MyProtocolIdIsIntent get protocol I D {ProtocolId}
 WhatsMyKeywordIntent what am I searching for
 WhatsMyProtocolListIntent list protocols
 ReadProtocolStepIntent next step
-ReadProtocolStepIntent get my favorite protocol
+ReadProtocolStepIntent read protocol
