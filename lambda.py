@@ -9,7 +9,6 @@ import os
 import urllib.parse
 import urllib.request
 
-PROTOCOLS_IO_ACCESS_TOKEN = os.environ['PROTOCOLS_IO_ACCESS_TOKEN']
 # --------------- Helpers that build all of the responses ----------------
 
 
@@ -45,8 +44,10 @@ def build_response(session_attributes, speechlet_response):
 # --------------- Functions that control the skill's behavior ------------
 
 def get_welcome_response():
-    """ Initialize the session """
+    """ Initialize the session and grab Protocols.io access_token """
 
+    session_attributes = {'access_token': os.environ[
+        'PROTOCOLS_IO_ACCESS_TOKEN']}
     card_title = 'Welcome'
     speech_output = ('Welcome to Proxa. Please tell me what protocol to '
                      'search for by saying, search protocols i o for cell '
@@ -75,7 +76,7 @@ def set_keyword_in_session(intent, session):
     """
 
     card_title = intent['name']
-    session_attributes = {}
+    session_attributes = session.get('attributes', {})
     should_end_session = False
 
     keyword = intent['slots']['Keyword']['value']
@@ -83,7 +84,7 @@ def set_keyword_in_session(intent, session):
 
     url = 'https://protocols.io/api/open/get_protocols'
     values = {
-        'access_token': PROTOCOLS_IO_ACCESS_TOKEN,
+        'access_token': session_attributes['access_token'],
         'key': keyword,
     }
 
@@ -161,7 +162,7 @@ def get_protocol_step_from_session(intent, session):
     url = 'https://protocols.io/api/open/get_protocol_json'
     protocol_id = '8256'
     values = {
-        'access_token': PROTOCOLS_IO_ACCESS_TOKEN,
+        'access_token': session_attributes['access_token'],
         'protocol_id': protocol_id,
     }
     data = urllib.parse.urlencode(values).encode('utf-8')
